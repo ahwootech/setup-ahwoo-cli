@@ -1,0 +1,32 @@
+name: Bug report
+description: The action or the CLI install doesn't work as described.
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: runner
+    attributes:
+      label: Runner
+      description: The runner image, such as ubuntu-latest or windows-2025.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: CLI version
+      description: The exact version that `ahwoo --version` prints in the failing run. "latest" doesn't tell us which build you had.
+      placeholder: 2026.9.10.523
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The failing step's log. Remove client secrets and other credentials first.
+      render: text

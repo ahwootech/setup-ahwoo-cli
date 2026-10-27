@@ -1,0 +1,39 @@
+name: Set up Ahwoo CLI
+description: Installs the Ahwoo CLI from install.ahwoo.com and adds ahwoo to the PATH.
+author: Ahwoo
+branding:
+  icon: upload-cloud
+  color: purple
+
+inputs:
+  version:
+    description: CLI version to install, such as 2026.9.10.523. Defaults to the latest release.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Install Ahwoo CLI
+      if: runner.os != 'Windows'
+      shell: bash
+      env:
+        AHWOO_CLI_VERSION: ${{ inputs.version }}
+        AHWOO_CLI_INSTALL_DIR: ${{ runner.temp }}/ahwoo-cli
+      run: |
+        curl -fsSL https://install.ahwoo.com/cli/install.sh | sh
+        echo "$AHWOO_CLI_INSTALL_DIR" >> "$GITHUB_PATH"
+
+    - name: Install Ahwoo CLI
+      if: runner.os == 'Windows'
+      shell: pwsh
+      env:
+        AHWOO_CLI_VERSION: ${{ inputs.version }}
+        AHWOO_CLI_INSTALL_DIR: ${{ runner.temp }}\ahwoo-cli
+      run: |
+        irm https://install.ahwoo.com/cli/install.ps1 | iex
+        Add-Content -Path $env:GITHUB_PATH -Value $env:AHWOO_CLI_INSTALL_DIR
+
+    - name: Show Ahwoo CLI version
+      shell: bash
+      run: ahwoo --version

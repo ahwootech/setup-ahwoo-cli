@@ -1,0 +1,11 @@
+name: Feature request
+description: Ask for something the action doesn't do yet.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: request
+    attributes:
+      label: What you need
+      description: What you want the action to do, and the workflow you need it for.
+    validations:
+      required: true

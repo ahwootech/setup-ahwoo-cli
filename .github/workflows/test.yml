@@ -1,0 +1,63 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  install-latest:
+    name: Install latest / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Look up the latest published version
+        id: published
+        shell: bash
+        run: echo "version=$(curl -fsSL https://install.ahwoo.com/cli/version.json | jq -r .version)" >> "$GITHUB_OUTPUT"
+
+      - name: Install the CLI without a version input
+        uses: ./
+
+      - name: Fail unless ahwoo reports the latest version
+        shell: bash
+        env:
+          EXPECTED: ${{ steps.published.outputs.version }}
+        run: |
+          installed=$(ahwoo --version)
+          if [ "$installed" != "$EXPECTED" ]; then
+            echo "ahwoo reports $installed, but the latest published version is $EXPECTED." >&2
+            exit 1
+          fi
+
+  install-pinned:
+    name: Install pinned version
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PINNED_VERSION: 2026.10.12.625
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install the CLI with the version input set
+        uses: ./
+        with:
+          version: ${{ env.PINNED_VERSION }}
+
+      - name: Fail unless ahwoo reports the pinned version
+        run: |
+          installed=$(ahwoo --version)
+          if [ "$installed" != "$PINNED_VERSION" ]; then
+            echo "ahwoo reports $installed, but the workflow pinned $PINNED_VERSION." >&2
+            exit 1
+          fi
